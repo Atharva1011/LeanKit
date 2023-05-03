@@ -158,7 +158,7 @@ exports.delete = async (req, res) => {
       }
     }
 
-    await Board.deleteOne({ _id: boardId })
+    await Shared.deleteOne({ _id: boardId })
 
     const boards = await Shared.find().sort('position')
     for (const key in boards) {

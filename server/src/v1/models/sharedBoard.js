@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const {schemaOptions} = require('./modelOptions')
 
-
+// const UserScheam = new Schema({
+//         name:String,
+// })
 const sharedSchema = new Schema({
     user:{
         type:Schema.Types.ObjectId,

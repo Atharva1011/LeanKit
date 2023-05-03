@@ -62,6 +62,7 @@ router.get(
   router.delete(
     '/:boardId',
     param('boardId').custom(value => {
+      console.log(value);
       if (!validation.isObjectId(value)) {
         return Promise.reject('invalid id')
       } else return Promise.resolve()

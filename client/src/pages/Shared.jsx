@@ -1,21 +1,36 @@
+import * as React from 'react';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined'
-import { Box, IconButton, TextField } from '@mui/material'
+import { Box, IconButton, TextField, ListItemButton,Button } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import boardApi from '../api/boardApi'
+import authApi from '../api/authApi';
 import EmojiPicker from '../components/common/EmojiPicker'
 import Kanban from '../components/common/Kanban'
 import { setSharedBoards } from '../redux/features/sharedSlice'
 import { setFavouriteList } from '../redux/features/favouriteSlice'
+import Modal from '@mui/material/Modal';
+import Typography from '@mui/material/Typography';
+import SearchAppBar from '../components/common/Search';
 
-
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
 let timer
 const timeout = 500
 
-
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 const Shared = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -25,9 +40,29 @@ const Shared = () => {
   const [sections, setSections] = useState([])
   const [isFavourite, setIsFavourite] = useState(false)
   const [icon, setIcon] = useState('')
-
   const boards = useSelector((state) => state.sharedBoard.value)
   const favouriteList = useSelector((state) => state.favourites.value)
+  const [userids,setUserIds] = useState([])
+  const [open, setOpen] = React.useState(false);
+
+  const getUsers = async()=>{
+    const res = await authApi.getAllUsers();
+    const allusers = res.allusers;
+    let usernames = [];
+    allusers.forEach((e)=>{
+      usernames.push(e.username)
+    })
+    // console.log(usernames)
+    setUserIds(usernames);
+  }
+
+  const handleOpen =() => {
+    setOpen(true);
+    getUsers();
+  }
+  const handleClose = () => setOpen(false);
+  
+  
 
   useEffect(() => {
     const getBoard = async () => {
@@ -93,6 +128,12 @@ const Shared = () => {
     }, timeout);
   }
 
+  const searchUser = async(e)=>{
+    clearTimeout(timer)
+    const user = e.target.value
+
+  }
+
   const updateDescription = async (e) => {
     clearTimeout(timer)
     const newDescription = e.target.value
@@ -121,7 +162,7 @@ const Shared = () => {
       alert(err)
     }
   }
-
+  
   const deleteBoard = async () => {
     try {
       await boardApi.deleteShared(boardId)
@@ -159,6 +200,7 @@ const Shared = () => {
             )
           }
         </IconButton>
+        <Button variant="contained" onClick={handleOpen}>Add Users</Button>
         <IconButton variant='outlined' color='error' onClick={deleteBoard}>
           <DeleteOutlinedIcon />
         </IconButton>
@@ -196,6 +238,49 @@ const Shared = () => {
         <Box>
           {/* Kanban board */}
           <Kanban data={sections} boardId={boardId} />
+        </Box>
+        <Box>
+        <div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          {
+            userids.map((item)=>(
+              <>
+              <ListItemButton
+                        >
+                          <Typography
+                            variant='body2'
+                            fontWeight='700'
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                          >
+                          {item}
+                          </Typography>
+                          <IconButton
+                          variant='outlined'
+                          size='small'
+                          sx={{
+                            color: 'gray',
+                            '&:hover': { color: 'green' }
+                          }}
+                         
+                        >
+                          <AddOutlinedIcon />
+                        </IconButton>
+                        </ListItemButton>
+                        
+                        </>
+                        
+            ))
+          }
+          
+        </Box>
+      </Modal>
+    </div>
         </Box>
       </Box>
     </>
