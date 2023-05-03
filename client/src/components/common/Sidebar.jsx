@@ -13,6 +13,7 @@ import FavouriteList from './FavouriteList'
 const Sidebar = () => {
   const user = useSelector((state) => state.user.value)
   const boards = useSelector((state) => state.board.value)
+ 
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { boardId } = useParams()
@@ -72,6 +73,17 @@ const Sidebar = () => {
     }
   }
 
+  const addShared = async()=>{
+    try{
+      const res = await boardApi.createShared()
+      const newList = [res, ...boards]
+      dispatch(setBoards(newList))
+      navigate(`/boards/${res.id}`)
+    }catch(err){
+      alert(err)
+    }
+  }
+
   return (
     <Drawer
       container={window.document.body}
@@ -124,6 +136,22 @@ const Sidebar = () => {
             </IconButton>
           </Box>
         </ListItem>
+        <ListItem>
+          <Box sx={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <Typography variant='body2' fontWeight='700'>
+              Shared
+            </Typography>
+            <IconButton onClick={addShared}>
+              <AddBoxOutlinedIcon fontSize='small' />
+            </IconButton>
+          </Box>
+        </ListItem>
+
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable key={'list-board-droppable-key'} droppableId={'list-board-droppable'}>
             {(provided) => (

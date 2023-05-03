@@ -1,12 +1,12 @@
-const Board = require('../models/board')
+const Shared = require('../models/sharedBoard')
 const Section = require('../models/section')
 const Task = require('../models/task')
 
 
-exports.create = async (req, res) => {
-  try {
-    const boardsCount = await Board.find().count()
-    const board = await Board.create({
+exports.create = async(req,res)=>{
+     try {
+    const boardsCount = await Shared.find().count()
+    const board = await Shared.create({
       user: req.user._id,
       position: boardsCount > 0 ? boardsCount : 0
     })
@@ -17,22 +17,22 @@ exports.create = async (req, res) => {
 }
 
 
-
 exports.getAll = async (req, res) => {
   try {
-    const boards = await Board.find({ user: req.user._id }).sort('-position')
+    const boards = await Shared.find({ user: req.user._id }).sort('-position')
     res.status(200).json(boards)
   } catch (err) {
     res.status(500).json(err)
   }
 }
 
+
 exports.updatePosition = async (req, res) => {
   const { boards } = req.body
   try {
     for (const key in boards.reverse()) {
       const board = boards[key]
-      await Board.findByIdAndUpdate(
+      await Shared.findByIdAndUpdate(
         board.id,
         { $set: { position: key } }
       )
@@ -43,10 +43,11 @@ exports.updatePosition = async (req, res) => {
   }
 }
 
+
 exports.getOne = async (req, res) => {
   const { boardId } = req.params
   try {
-    const board = await Board.findOne({ user: req.user._id, _id: boardId })
+    const board = await Shared.findOne({ user: req.user._id, _id: boardId })
     if (!board) return res.status(404).json('Board not found')
     const sections = await Section.find({ board: boardId })
     for (const section of sections) {
@@ -60,6 +61,7 @@ exports.getOne = async (req, res) => {
   }
 }
 
+
 exports.update = async (req, res) => {
   const { boardId } = req.params
   const { title, description, favourite } = req.body
@@ -67,11 +69,11 @@ exports.update = async (req, res) => {
   try {
     if (title === '') req.body.title = 'Untitled'
     if (description === '') req.body.description = 'Add description here'
-    const currentBoard = await Board.findById(boardId)
+    const currentBoard = await Shared.findById(boardId)
     if (!currentBoard) return res.status(404).json('Board not found')
 
     if (favourite !== undefined && currentBoard.favourite !== favourite) {
-      const favourites = await Board.find({
+      const favourites = await Shared.find({
         user: currentBoard.user,
         favourite: true,
         _id: { $ne: boardId }
@@ -81,7 +83,7 @@ exports.update = async (req, res) => {
       } else {
         for (const key in favourites) {
           const element = favourites[key]
-          await Board.findByIdAndUpdate(
+          await Shared.findByIdAndUpdate(
             element.id,
             { $set: { favouritePosition: key } }
           )
@@ -89,7 +91,7 @@ exports.update = async (req, res) => {
       }
     }
 
-    const board = await Board.findByIdAndUpdate(
+    const board = await Shared.findByIdAndUpdate(
       boardId,
       { $set: req.body }
     )
@@ -99,9 +101,11 @@ exports.update = async (req, res) => {
   }
 }
 
+
+
 exports.getFavourites = async (req, res) => {
   try {
-    const favourites = await Board.find({
+    const favourites = await Shared.find({
       user: req.user._id,
       favourite: true
     }).sort('-favouritePosition')
@@ -116,7 +120,7 @@ exports.updateFavouritePosition = async (req, res) => {
   try {
     for (const key in boards.reverse()) {
       const board = boards[key]
-      await Board.findByIdAndUpdate(
+      await Shared.findByIdAndUpdate(
         board.id,
         { $set: { favouritePosition: key } }
       )
@@ -136,10 +140,10 @@ exports.delete = async (req, res) => {
     }
     await Section.deleteMany({ board: boardId })
 
-    const currentBoard = await Board.findById(boardId)
+    const currentBoard = await Shared.findById(boardId)
 
     if (currentBoard.favourite) {
-      const favourites = await Board.find({
+      const favourites = await Shared.find({
         user: currentBoard.user,
         favourite: true,
         _id: { $ne: boardId }
@@ -147,7 +151,7 @@ exports.delete = async (req, res) => {
 
       for (const key in favourites) {
         const element = favourites[key]
-        await Board.findByIdAndUpdate(
+        await Shared.findByIdAndUpdate(
           element.id,
           { $set: { favouritePosition: key } }
         )
@@ -156,10 +160,10 @@ exports.delete = async (req, res) => {
 
     await Board.deleteOne({ _id: boardId })
 
-    const boards = await Board.find().sort('position')
+    const boards = await Shared.find().sort('position')
     for (const key in boards) {
       const board = boards[key]
-      await Board.findByIdAndUpdate(
+      await Shared.findByIdAndUpdate(
         board.id,
         { $set: { position: key } }
       )

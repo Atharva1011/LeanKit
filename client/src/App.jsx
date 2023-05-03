@@ -10,6 +10,7 @@ import AppLayout from './components/layout/AppLayout'
 import AuthLayout from './components/layout/AuthLayout'
 import Home from './pages/Home'
 import Board from './pages/Board'
+import Shared from './pages/Shared'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 
@@ -31,6 +32,11 @@ function App() {
             <Route index element={<Home />} />
             <Route path='boards' element={<Home />} />
             <Route path='boards/:boardId' element={<Board />} />
+          </Route>
+          <Route path='/' element={<AppLayout/>}>
+          <Route index element={<Home />} />
+            <Route path='shared' element={<Home />} />
+            <Route path='shared/:boardId' element={<Board />} />
           </Route>
         </Routes>
       </BrowserRouter>

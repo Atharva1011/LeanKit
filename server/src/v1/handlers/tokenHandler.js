@@ -3,6 +3,7 @@ const User = require('../models/user')
 
 const tokenDecode = (req) => {
   const bearerHeader = req.headers['authorization']
+  console.log(req.headers)
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ')[1]
     try {
