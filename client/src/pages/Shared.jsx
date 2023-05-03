@@ -8,7 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import boardApi from '../api/boardApi'
 import EmojiPicker from '../components/common/EmojiPicker'
 import Kanban from '../components/common/Kanban'
-import { setBoards } from '../redux/features/boardSlice'
+import { setSharedBoards } from '../redux/features/sharedSlice'
 import { setFavouriteList } from '../redux/features/favouriteSlice'
 
 
@@ -16,7 +16,7 @@ let timer
 const timeout = 500
 
 
-const Board = () => {
+const Shared = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { boardId } = useParams()
@@ -26,13 +26,13 @@ const Board = () => {
   const [isFavourite, setIsFavourite] = useState(false)
   const [icon, setIcon] = useState('')
 
-  const boards = useSelector((state) => state.board.value)
+  const boards = useSelector((state) => state.sharedBoard.value)
   const favouriteList = useSelector((state) => state.favourites.value)
 
   useEffect(() => {
     const getBoard = async () => {
       try {
-        const res = await boardApi.getOne(boardId)
+        const res = await boardApi.getOneShared(boardId)
         setTitle(res.title)
         setDescription(res.description)
         setSections(res.sections)
@@ -58,9 +58,9 @@ const Board = () => {
     }
 
     setIcon(newIcon)
-    dispatch(setBoards(temp))
+    dispatch(setSharedBoards(temp))
     try {
-      await boardApi.update(boardId, { icon: newIcon })
+      await boardApi.updateShared(boardId, { icon: newIcon })
     } catch (err) {
       alert(err)
     }
@@ -82,11 +82,11 @@ const Board = () => {
       dispatch(setFavouriteList(tempFavourite))
     }
 
-    dispatch(setBoards(temp))
+    dispatch(setSharedBoards(temp))
 
     timer = setTimeout(async () => {
       try {
-        await boardApi.update(boardId, { title: newTitle })
+        await boardApi.updateShared(boardId, { title: newTitle })
       } catch (err) {
         alert(err)
       }
@@ -99,7 +99,7 @@ const Board = () => {
     setDescription(newDescription)
     timer = setTimeout(async () => {
       try {
-        await boardApi.update(boardId, { description: newDescription })
+        await boardApi.updateShared(boardId, { description: newDescription })
       } catch (err) {
         alert(err)
       }
@@ -108,7 +108,7 @@ const Board = () => {
 
   const addFavourite = async () => {
     try {
-      const board = await boardApi.update(boardId, { favourite: !isFavourite })
+      const board = await boardApi.updateShared(boardId, { favourite: !isFavourite })
       let newFavouriteList = [...favouriteList]
       if (isFavourite) {
         newFavouriteList = newFavouriteList.filter(e => e.id !== boardId)
@@ -124,7 +124,7 @@ const Board = () => {
 
   const deleteBoard = async () => {
     try {
-      await boardApi.delete(boardId)
+      await boardApi.deleteShared(boardId)
       if (isFavourite) {
         const newFavouriteList = favouriteList.filter(e => e.id !== boardId)
         dispatch(setFavouriteList(newFavouriteList))
@@ -132,11 +132,11 @@ const Board = () => {
 
       const newList = boards.filter(e => e.id !== boardId)
       if (newList.length === 0) {
-        navigate('/boards')
+        navigate('/shared')
       } else {
-        navigate(`/boards/${newList[0].id}`)
+        navigate(`/shared/${newList[0].id}`)
       }
-      dispatch(setBoards(newList))
+      dispatch(setSharedBoards(newList))
     } catch (err) {
       alert(err)
     }
@@ -202,4 +202,4 @@ const Board = () => {
   )
 }
 
-export default Board
+export default Shared

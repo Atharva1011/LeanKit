@@ -36,7 +36,7 @@ function App() {
           <Route path='/' element={<AppLayout/>}>
           <Route index element={<Home />} />
             <Route path='shared' element={<Home />} />
-            <Route path='shared/:boardId' element={<Board />} />
+            <Route path='shared/:boardId' element={<Shared />} />
           </Route>
         </Routes>
       </BrowserRouter>

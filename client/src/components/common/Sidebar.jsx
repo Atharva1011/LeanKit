@@ -7,13 +7,14 @@ import assets from '../../assets/index'
 import { useEffect, useState } from 'react'
 import boardApi from '../../api/boardApi'
 import { setBoards } from '../../redux/features/boardSlice'
+import { setSharedBoards } from '../../redux/features/sharedSlice'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import FavouriteList from './FavouriteList'
 
 const Sidebar = () => {
   const user = useSelector((state) => state.user.value)
   const boards = useSelector((state) => state.board.value)
- 
+  const shared = useSelector((state)=>state.sharedBoard.value)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { boardId } = useParams()
@@ -32,6 +33,29 @@ const Sidebar = () => {
     }
     getBoards()
   }, [dispatch])
+
+  // shared UseEffect
+  useEffect(() => {
+    const getShared = async () => {
+      try {
+        const res = await boardApi.getAllShared()
+        dispatch(setSharedBoards(res))
+      } catch (err) {
+        alert(err)
+      }
+    }
+    getShared()
+  }, [dispatch])
+
+
+  useEffect(() => {
+    const activeItem = shared.findIndex(e => e.id === boardId)
+    if (shared.length > 0 && boardId === undefined) {
+      navigate(`/shared/${shared[0].id}`)
+    }
+    setActiveIndex(activeItem)
+  }, [shared, boardId, navigate])
+// shared end 
 
   useEffect(() => {
     const activeItem = boards.findIndex(e => e.id === boardId)
@@ -76,9 +100,9 @@ const Sidebar = () => {
   const addShared = async()=>{
     try{
       const res = await boardApi.createShared()
-      const newList = [res, ...boards]
-      dispatch(setBoards(newList))
-      navigate(`/boards/${res.id}`)
+      const newList = [res, ...shared]
+      dispatch(setSharedBoards(newList))
+      navigate(`/shared/${res.id}`)
     }catch(err){
       alert(err)
     }
@@ -136,22 +160,6 @@ const Sidebar = () => {
             </IconButton>
           </Box>
         </ListItem>
-        <ListItem>
-          <Box sx={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <Typography variant='body2' fontWeight='700'>
-              Shared
-            </Typography>
-            <IconButton onClick={addShared}>
-              <AddBoxOutlinedIcon fontSize='small' />
-            </IconButton>
-          </Box>
-        </ListItem>
-
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable key={'list-board-droppable-key'} droppableId={'list-board-droppable'}>
             {(provided) => (
@@ -189,6 +197,61 @@ const Sidebar = () => {
             )}
           </Droppable>
         </DragDropContext>
+
+          {/* SHARED */}
+        <ListItem>
+          <Box sx={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <Typography variant='body2' fontWeight='700'>
+              Shared
+            </Typography>
+            <IconButton onClick={addShared}>
+              <AddBoxOutlinedIcon fontSize='small' />
+            </IconButton>
+          </Box>
+        </ListItem>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable key={'list-board-droppable-key-1'} droppableId={'list-board-droppable'}>
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {
+                  shared.map((item, index) => (
+                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                      {(provided, snapshot) => (
+                        <ListItemButton
+                          ref={provided.innerRef}
+                          {...provided.dragHandleProps}
+                          {...provided.draggableProps}
+                          selected={index === activeIndex}
+                          component={Link}
+                          to={`/shared/${item.id}`}
+                          sx={{
+                            pl: '20px',
+                            cursor: snapshot.isDragging ? 'grab' : 'pointer!important'
+                          }}
+                        >
+                          <Typography
+                            variant='body2'
+                            fontWeight='700'
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                          >
+                            {item.icon} {item.title}
+                          </Typography>
+                        </ListItemButton>
+                      )}
+                    </Draggable>
+                  ))
+                }
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+
       </List>
     </Drawer>
   )
