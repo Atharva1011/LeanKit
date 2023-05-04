@@ -7,7 +7,8 @@ exports.create = async(req,res)=>{
      try {
     const boardsCount = await Shared.find().count()
     const board = await Shared.create({
-      user: req.user._id,
+      // user: req.user._id,
+      users: [{userid:req.user._id}],
       position: boardsCount > 0 ? boardsCount : 0
     })
     res.status(201).json(board)
@@ -19,9 +20,9 @@ exports.create = async(req,res)=>{
 
 exports.getAll = async (req, res) => {
   try {
-    const boards = await Shared.find({ user: req.user._id }).sort('-position')
+    const boards = await Shared.find({ "users.userid": req.user._id }).sort('-position')
     res.status(200).json(boards)
-  } catch (err) {
+  } catch (err) { 
     res.status(500).json(err)
   }
 }
@@ -47,7 +48,7 @@ exports.updatePosition = async (req, res) => {
 exports.getOne = async (req, res) => {
   const { boardId } = req.params
   try {
-    const board = await Shared.findOne({ user: req.user._id, _id: boardId })
+    const board = await Shared.findOne({ "users.userid": req.user._id, _id: boardId })
     if (!board) return res.status(404).json('Board not found')
     const sections = await Section.find({ board: boardId })
     for (const section of sections) {
@@ -74,7 +75,7 @@ exports.update = async (req, res) => {
 
     if (favourite !== undefined && currentBoard.favourite !== favourite) {
       const favourites = await Shared.find({
-        user: currentBoard.user,
+        users: currentBoard.users,
         favourite: true,
         _id: { $ne: boardId }
       }).sort('favouritePosition')
@@ -106,7 +107,7 @@ exports.update = async (req, res) => {
 exports.getFavourites = async (req, res) => {
   try {
     const favourites = await Shared.find({
-      user: req.user._id,
+      "users.userid": req.user._id,
       favourite: true
     }).sort('-favouritePosition')
     res.status(200).json(favourites)

@@ -210,13 +210,13 @@ const Shared = () => {
           width: "100%",
         }}
       >
-        <IconButton variant="outlined" onClick={addFavourite}>
+        {/* <IconButton variant="outlined" onClick={addFavourite}>
           {isFavourite ? (
             <StarOutlinedIcon color="warning" />
           ) : (
             <StarBorderOutlinedIcon />
           )}
-        </IconButton>
+        </IconButton> */}
         <Button variant="contained" onClick={handleOpen}>
           Add Users
         </Button>

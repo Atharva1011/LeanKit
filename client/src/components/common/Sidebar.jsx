@@ -13,7 +13,7 @@ import FavouriteList from './FavouriteList'
 
 const Sidebar = () => {
   const user = useSelector((state) => state.user.value)
-  console.log(user);
+  // console.log(user);
   const boards = useSelector((state) => state.board.value)
   const shared = useSelector((state)=>state.sharedBoard.value)
   //console.log("boards",boards);
