@@ -196,10 +196,16 @@ const Shared = () => {
       alert(err);
     }
   };
-  const addUser = (userId,boardId)=>{
+  const addUser = async(userId,boardId)=>{
     // console.log(userId,boardId);
-    
+    try{
+      await boardApi.addSharedUser(boardId,{name:userId});
+    }catch(err){
+      alert(err);
+    }
   }
+
+
   return (
     <>
       <Box

@@ -1,6 +1,7 @@
 const Shared = require('../models/sharedBoard')
 const Section = require('../models/section')
 const Task = require('../models/task')
+const { default: mongoose } = require('mongoose')
 
 
 exports.create = async(req,res)=>{
@@ -17,10 +18,23 @@ exports.create = async(req,res)=>{
   }
 }
 
+exports.addSharedUser = async(req,res)=>{
+  console.log(req.body.name)
+  console.log(req.params)
+   const board = await Shared.find({_id:req.params.boardId})
+   //console.log(...board.users.add(req.body.name));
+   if (!board) return res.status(404).json('Board not found')
+
+  await Shared.findByIdAndUpdate(req.params.boardId,{$push:{users:{userid:mongoose.Types.ObjectId(req.body.name)}}});
+}
 
 exports.getAll = async (req, res) => {
   try {
-    const boards = await Shared.find({ "users.userid": req.user._id }).sort('-position')
+    //console.log(req.user._id)
+    //const boards = await Shared.find({ 'users.userid': req.user._id }).sort('-position')
+    console.log(req.user._id)
+    const boards = await Shared.find({users:{$elemMatch:{"userid":req.user._id}}}).sort('-position')  
+    console.log(boards)
     res.status(200).json(boards)
   } catch (err) { 
     res.status(500).json(err)
@@ -175,3 +189,5 @@ exports.delete = async (req, res) => {
     res.status(500).json(err)
   }
 }
+
+

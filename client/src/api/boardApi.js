@@ -19,7 +19,7 @@ const boardApi = {
   getFavouritesShared: () => axiosClient.get('shared/favourites'),
   updateFavouritePositionShared: (params) => axiosClient.put('shared/favourites', params),
 
-  
+  addSharedUser:(id,params)=>axiosClient.put(`shared/addSharedUser/${id}`,params)
 }
 
 export default boardApi
