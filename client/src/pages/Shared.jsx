@@ -58,7 +58,6 @@ const Shared = () => {
     let usernames = [];
     // let user = []
     allusers.forEach((e) => {
-      
       usernames.push({"username":e.username,"id":e._id});
     });
     // console.log(usernames)
